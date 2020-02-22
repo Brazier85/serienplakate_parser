@@ -12,7 +12,7 @@ Install the requested packages via pip. You can find them in the file named `Pip
 
 ## Crontab
 
-Scrapes the website once a hour and searches for new poster
+Scrapes the website once a hour and searches for new poster.
 
 ```
 0 * * * *  /usr/bin/python3 /data/python/serienplakate/main.py TOKEN CHAT > /root/plakate.log 2>&1

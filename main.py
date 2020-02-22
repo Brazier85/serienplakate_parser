@@ -65,7 +65,7 @@ class Parser:
         else:
             now = datetime.datetime.now()
             print(now.strftime("%d:%m:%Y %H:%M:%S") + " nothing found!")
-            self.send_telegram_message(message="test")
+            #self.send_telegram_message(message="test")
         return order_available
 
 

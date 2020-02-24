@@ -1,4 +1,4 @@
-import requests, os, datetime, argparse
+import requests, datetime, argparse
 from bs4 import BeautifulSoup
 from telegram import Bot
 

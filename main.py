@@ -61,7 +61,7 @@ class Parser:
 
     def send_telegram_message(self, message):
         bot = Bot(TELEGRAM_BOT_TOKEN)
-        bot.send_message(chat_id=TELEGRAM_USER_ID, text=message)
+        bot.send_message(chat_id=TELEGRAM_USER_ID, text=message, parse_mode="MARKDOWN_V2")
 
     def run(self):
         poster_ids = self.get_poster_ids()

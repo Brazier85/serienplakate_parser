@@ -23,7 +23,7 @@ class Parser:
         try:
             posters = content.findAll('div', attrs={'class': 'item'})
         except Exception as ex:
-            self.send_telegram_message(message='{} error in function\nget_poster_id:\n\n{}'.format(BASE_URL, ex))
+            self.send_telegram_message(message='{} error in function\n*get_poster_id*:\n\n{}'.format(BASE_URL, ex))
             raise
 
         return [x.attrs['data-sid'] for x in posters]
@@ -43,7 +43,8 @@ class Parser:
 
         try:
             html = BeautifulSoup(response.json()['data'], 'html.parser')
-        except:
+        except Exception as ex:
+            self.send_telegram_message(message='Error in function\n*check_poster_availability* with posterid: *{}*:\n\n{}'.format(poster_id, ex))
             self.send_telegram_message('ParserError while checking for poster {}'.format(poster_id))
             return 0
 

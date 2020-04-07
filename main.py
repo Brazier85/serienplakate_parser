@@ -23,7 +23,7 @@ class Parser:
         try:
             posters = content.findAll('div', attrs={'class': 'item'})
         except Exception as ex:
-            self.send_telegram_message(message='{} error in function\n*get_poster_id*:\n\n{}'.format(BASE_URL, ex))
+            self.send_telegram_message(message='[link]{} error in function\n*get_poster_id*:\n\n{}'.format(BASE_URL, ex))
             raise
 
         return [x.attrs['data-sid'] for x in posters]
@@ -61,13 +61,13 @@ class Parser:
 
     def send_telegram_message(self, message):
         bot = Bot(TELEGRAM_BOT_TOKEN)
-        bot.send_message(chat_id=TELEGRAM_USER_ID, text=message)
+        bot.send_message(chat_id=TELEGRAM_USER_ID, text=message, parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
     def run(self):
         poster_ids = self.get_poster_ids()
         order_available = any([self.check_poster_availability(pid) > 0 for pid in poster_ids])
         if order_available:
-            message = 'I found a free poster to order at {}'.format(BASE_URL)
+            message = 'I found a free poster to order at [link]{}'.format(BASE_URL)
             self.send_telegram_message(message=message)
         else:
             now = datetime.datetime.now()

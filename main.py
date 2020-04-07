@@ -1,4 +1,4 @@
-import requests, datetime, argparse
+import requests, datetime, argparse, datetime
 from bs4 import BeautifulSoup
 from telegram import Bot
 
@@ -11,11 +11,22 @@ args = argsp.parse_args()
 BASE_URL = 'https://serienplakate.de/'
 TELEGRAM_BOT_TOKEN = args.token
 TELEGRAM_USER_ID = args.chat
+HEADER = "[SERIENPLAKATE.DE]\n\n"
 
 class Parser:
     def __init__(self):
         remote_page = requests.get(BASE_URL, stream=True, verify=False)
         self.page = BeautifulSoup(remote_page.content, 'html.parser')
+        # Keepalive
+        now = datetime.datetime.now()
+        if now.hour == 12:
+            self.send_telegram_message(message="Script is still running")        
+        # Maintainance detection
+        if "gewartet" in self.page.title.string:
+            if (now.hour == 12):
+                self.send_telegram_message(message="Maintainance mode detected")
+            print("Page is in maintainance mode!")
+            exit(1)
     
     def get_poster_ids(self):
         # Suche alle vorhandenen Serien
@@ -23,7 +34,7 @@ class Parser:
         try:
             posters = content.findAll('div', attrs={'class': 'item'})
         except Exception as ex:
-            self.send_telegram_message(message='[link]{} error in function\n*get_poster_id*:\n\n{}'.format(BASE_URL, ex))
+            self.send_telegram_message(message="Error in function *get_poster_id*:\n\n{}".format(ex))
             raise
 
         return [x.attrs['data-sid'] for x in posters]
@@ -38,14 +49,13 @@ class Parser:
         try:
             response.raise_for_status()
         except requests.HTTPError as e:
-            self.send_telegram_message(message='{} errored:{}'.format(BASE_URL, e))
+            self.send_telegram_message(message='Error in function *check_poster_availability*:\n\n{}'.format(e))
             raise
 
         try:
             html = BeautifulSoup(response.json()['data'], 'html.parser')
         except Exception as ex:
-            self.send_telegram_message(message='Error in function\n*check_poster_availability* with posterid: *{}*:\n\n{}'.format(poster_id, ex))
-            self.send_telegram_message('ParserError while checking for poster {}'.format(poster_id))
+            self.send_telegram_message(message='Error in function *check_poster_availability* with posterid *{}*:\n\n{}'.format(poster_id, ex))
             return 0
 
         quantity_block = html.findAll('div', attrs={'class': 'count'})
@@ -61,7 +71,9 @@ class Parser:
 
     def send_telegram_message(self, message):
         bot = Bot(TELEGRAM_BOT_TOKEN)
-        bot.send_message(chat_id=TELEGRAM_USER_ID, text=message, parse_mode="MARKDOWN_V2")
+        message = HEADER + message
+        message = message.replace(".", "\.")
+        bot.send_message(chat_id=TELEGRAM_USER_ID, text=message, parse_mode="MarkdownV2")
 
     def run(self):
         poster_ids = self.get_poster_ids()

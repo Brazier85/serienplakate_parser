@@ -14,19 +14,25 @@ TELEGRAM_USER_ID = args.chat
 
 class Parser:
     def __init__(self):
-        remote_page = requests.get(BASE_URL, stream=True)
+        remote_page = requests.get(BASE_URL, stream=True, verify=False)
         self.page = BeautifulSoup(remote_page.content, 'html.parser')
     
     def get_poster_ids(self):
         # Suche alle vorhandenen Serien
         content = self.page.find('div', attrs={'class':'categorie-content'})
-        posters = content.findAll('div', attrs={'class': 'item'})
+        try:
+            posters = content.findAll('div', attrs={'class': 'item'})
+        except Exception as ex:
+            self.send_telegram_message(message='{} errored:{}'.format(BASE_URL, ex))
+            raise
+
         return [x.attrs['data-sid'] for x in posters]
 
     def check_poster_availability(self, poster_id) -> int:
         # Suche ob es für die Serie Poster gibt
         response = requests.post('{}backend/_ajax.php'.format(BASE_URL),
-            data={'cmd': 'poster', 'sId': poster_id}
+            data={'cmd': 'poster', 'sId': poster_id},
+            verify=False
         )
 
         try:

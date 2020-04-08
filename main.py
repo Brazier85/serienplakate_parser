@@ -15,7 +15,7 @@ HEADER = "[SERIENPLAKATE.DE]\n\n"
 
 class Parser:
     def __init__(self):
-        remote_page = requests.get(BASE_URL, stream=True, verify=False)
+        remote_page = requests.get(BASE_URL, stream=True)
         self.page = BeautifulSoup(remote_page.content, 'html.parser')
         # Keepalive
         now = datetime.datetime.now()
@@ -42,8 +42,7 @@ class Parser:
     def check_poster_availability(self, poster_id) -> int:
         # Suche ob es für die Serie Poster gibt
         response = requests.post('{}backend/_ajax.php'.format(BASE_URL),
-            data={'cmd': 'poster', 'sId': poster_id},
-            verify=False
+            data={'cmd': 'poster', 'sId': poster_id}
         )
 
         try:

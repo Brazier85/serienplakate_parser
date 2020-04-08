@@ -17,7 +17,7 @@ class Parser:
     def __init__(self):
         remote_page = requests.get(BASE_URL, stream=True)
         self.page = BeautifulSoup(remote_page.content, 'html.parser')
-        # Keepalive
+        # Heartbeat
         now = datetime.datetime.now()
         if now.hour == 12:
             self.send_telegram_message(message="Script is still running")        

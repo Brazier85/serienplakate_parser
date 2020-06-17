@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import requests, datetime, argparse, datetime
 from bs4 import BeautifulSoup
 from telegram import Bot
@@ -26,6 +28,11 @@ class Parser:
             if (now.hour == 12):
                 self.send_telegram_message(message="Maintainance mode detected")
             print("Page is in maintainance mode!")
+            exit(1)
+        if "401" in self.page.title.string:
+            if (now.hour == 12):
+                self.send_telegram_message(message="Page needs login (*401 found*)")
+            print("Page needs login (401 found)")
             exit(1)
     
     def get_poster_ids(self):

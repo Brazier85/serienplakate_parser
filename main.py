@@ -31,7 +31,7 @@ class Parser:
             exit(1)
         if "401" in self.page.title.string:
             if (now.hour == 12):
-                self.send_telegram_message(message="Page needs login (*401 found*)")
+                self.send_telegram_message(message="Page needs login \(*401 found*\)")
             print("Page needs login (401 found)")
             exit(1)
     

@@ -35,7 +35,7 @@ class Parser:
             print("Page needs login (401 found)")
             exit(1)
     
-    def get_poster_ids(self):
+    def get_poster_data(self):
         # Suche alle vorhandenen Serien
         content = self.page.find('div', attrs={'class':'categorie-content'})
         try:
@@ -44,12 +44,20 @@ class Parser:
             self.send_telegram_message(message="Error in function *get_poster_id*:\n\n{}".format(ex))
             raise
 
-        return [x.attrs['data-sid'] for x in posters]
+        d = dict();
 
-    def check_poster_availability(self, poster_id) -> int:
+        for x in posters:
+            sId = x.attrs['data-sid']
+            sName = x.attrs['data-sname']
+            d[sId] = sName
+
+        print(d)
+        return d
+
+    def check_poster_availability(self, poster_id, poster_name) -> int:
         # Suche ob es für die Serie Poster gibt
-        response = requests.post('{}backend/_ajax.php'.format(BASE_URL),
-            data={'cmd': 'poster', 'sId': poster_id}
+        response = requests.post('https://www2.serienplakate.de/backend/_ajax.php',
+            data={'cmd': 'poster', 'sId': poster_id, 'sName': poster_name, 'selected': poster_id}
         )
 
         try:
@@ -61,9 +69,9 @@ class Parser:
         try:
             html = BeautifulSoup(response.json()['data'], 'html.parser')
         except Exception as ex:
-            self.send_telegram_message(message='Error in function *check_poster_availability* with posterid *{}*:\n\n{}'.format(poster_id, ex))
+            msg='Error in function *check_poster_availability* with posterid *{}*:\n\n{}'.format(poster_id, ex).replace(")","\)").replace("(","\(")
+            self.send_telegram_message(message=msg)
             return 0
-
         quantity_block = html.findAll('div', attrs={'class': 'count'})
         quantity_proportion = [x.text for x in quantity_block]
         quantity_available = [x.split('/')[0] for x in quantity_proportion]
@@ -82,8 +90,9 @@ class Parser:
         bot.send_message(chat_id=TELEGRAM_USER_ID, text=message, parse_mode="MarkdownV2")
 
     def run(self):
-        poster_ids = self.get_poster_ids()
-        order_available = any([self.check_poster_availability(pid) > 0 for pid in poster_ids])
+        poster_ids = self.get_poster_data()
+        print(len(poster_ids))
+        order_available = any([self.check_poster_availability(poster_id, poster_ids[poster_id]) > 0 for poster_id in poster_ids])
         if order_available:
             message = 'I found a free poster to order at [link]{}'.format(BASE_URL)
             self.send_telegram_message(message=message)

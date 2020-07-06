@@ -69,8 +69,7 @@ class Parser:
         try:
             html = BeautifulSoup(response.json()['data'], 'html.parser')
         except Exception as ex:
-            msg='Error in function *check\_poster\_availability* with posterid *{}*:\n\n{}'.format(poster_id, ex).replace(")","\)").replace("(","\(")
-            self.send_telegram_message(message=msg)
+            self.send_telegram_message(message='Error in function *check_poster_availability* with posterid *{}*:\n\n{}'.format(poster_id, ex))
             return 0
         quantity_block = html.findAll('div', attrs={'class': 'count'})
         quantity_proportion = [x.text for x in quantity_block]
@@ -86,7 +85,7 @@ class Parser:
     def send_telegram_message(self, message):
         bot = Bot(TELEGRAM_BOT_TOKEN)
         message = HEADER + message
-        message = message.replace(".", "\.")
+        message = message.replace(".", "\.").replace(")","\)").replace("(","\(").replace("_","\_")
         bot.send_message(chat_id=TELEGRAM_USER_ID, text=message, parse_mode="MarkdownV2")
 
     def run(self):

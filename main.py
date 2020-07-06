@@ -41,7 +41,7 @@ class Parser:
         try:
             posters = content.findAll('div', attrs={'class': 'item'})
         except Exception as ex:
-            self.send_telegram_message(message="Error in function *get_poster_id*:\n\n{}".format(ex))
+            self.send_telegram_message(message="Error in function *get\_poster\_id*:\n\n{}".format(ex))
             raise
 
         d = dict();
@@ -69,7 +69,7 @@ class Parser:
         try:
             html = BeautifulSoup(response.json()['data'], 'html.parser')
         except Exception as ex:
-            msg='Error in function *check_poster_availability* with posterid *{}*:\n\n{}'.format(poster_id, ex).replace(")","\)").replace("(","\(")
+            msg='Error in function *check\_poster\_availability* with posterid *{}*:\n\n{}'.format(poster_id, ex).replace(")","\)").replace("(","\(")
             self.send_telegram_message(message=msg)
             return 0
         quantity_block = html.findAll('div', attrs={'class': 'count'})
